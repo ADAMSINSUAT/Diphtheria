@@ -9,37 +9,29 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { UserForm, userFormSchema } from './data/schema';
 
-interface User {
-    id: string;
-    first_name: string;
-    last_name: string;
-    mobile_number: string;
-    username: string;
-    email: string;
-    password: string;
-    retype_password: string;
-}
+
 
 export default function edit() {
-    const { user } = usePage().props;
 
-    const userData = user as User;
+    const {user} = usePage().props;
+
+    console.log(user);
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Edit User',
-            href: `/iam/users/${userData.id}/edit`,
+            href: `/iam/users/${user.id}/edit`,
         },
     ];
 
     const form = useForm<UserForm>({
         resolver: zodResolver(userFormSchema),
         defaultValues: {
-            first_name: userData.first_name || '',
-            last_name: userData.last_name || '',
-            mobile_number: userData.mobile_number || '',
-            username: userData.username || '',
-            email: userData.email || '',
+            first_name: user.first_name || '',
+            last_name: user.last_name || '',
+            mobile_number: user.mobile_number || '',
+            username: user.username || '',
+            email: user.email || '',
             password: '',
             retype_password: '',
         },
@@ -51,7 +43,7 @@ export default function edit() {
             password_confirmation: values.retype_password,
         };
 
-        router.put(`/iam/users/${userData.id}`, payload, {
+        router.put(`/iam/users/${user.id}`, payload, {
             onSuccess: () => {
                 toast('User updated successfully!');
                 form.reset();
