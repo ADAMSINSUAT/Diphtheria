@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
 import { DIPHForm, diphFormSchema } from './data/schema';
 
@@ -21,51 +21,47 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function create() {
-    const { patient_number } = usePage().props;
-
-    const pat_number = patient_number.map((p)=>p.patient_number);
-
-
     const form = useForm<DIPHForm>({
         resolver: zodResolver(diphFormSchema),
         defaultValues: {
             // case_id: '',
-            patient_number: pat_number[0] as string,
-            admitted: undefined,
-            date_admitted: undefined,
-            caregiver: '',
-            caregiver_no: '',
-            date_report: undefined,
-            reporter: '',
-            reporter_no: '',
-            date_investigation: undefined,
-            investigator: '',
-            investigator_no: '',
-            diphtheria_dose: undefined,
-            total_dose: undefined,
-            date_last_vaccination: undefined,
-            sourceinformation: undefined,
-            known_exposure: undefined,
+            // patient_number: '',
+            disease_age: 0,
+            admitted: 'Y',
+            date_admitted: '2025-12-12',
+            caregiver: 'John Doe',
+            caregiver_no: '09987654321',
+            date_report: '2025-12-12',
+            reporter: 'John Doe',
+            reporter_no: '09987654321',
+            date_investigation: '2025-12-12',
+            investigator: 'John Doe',
+            investigator_no: '09987654321',
+            diphtheria_dose: 'Y',
+            total_dose: 2,
+            date_last_vaccination: '2025-12-12',
+            sourceinformation: 2,
+            known_exposure: 1,
             exposure_other: '',
             name_school: '',
-            travel14days: undefined,
-            travel_detail: '',
-            date_onset: undefined,
-            fever: undefined,
-            cough: undefined,
-            sorethroat: undefined,
-            pseudomembrane: undefined,
-            swallowing: undefined,
-            breathing: undefined,
-            other_symptoms: undefined,
-            other_symptoms_specify: '',
-            outcome: undefined,
-            datedied: undefined,
-            antibiotic: undefined,
-            antibiotic_date: undefined,
-            diphtheriatoxin: undefined,
-            diphtheriatoxin_date: undefined,
-            final_classi: undefined,
+            travel14days: 'Y',
+            travel_detail: 'Sample',
+            date_onset: '2025-12-12',
+            fever: 'Y',
+            cough: 'Y',
+            sorethroat: 'Y',
+            pseudomembrane: 'Y',
+            swallowing: 'Y',
+            breathing: 'Y',
+            other_symptoms: 'Y',
+            other_symptoms_specify: 'Sample',
+            outcome: 2,
+            datedied: '2025-12-12',
+            antibiotic: 'Y',
+            antibiotic_date: '2025-12-12',
+            diphtheriatoxin: 'Y',
+            diphtheriatoxin_date: '2025-12-12',
+            final_classi: 1,
             // user_id: undefined,
             // timestamp: undefined,
             // verification_level: undefined,
@@ -127,6 +123,7 @@ export default function create() {
         if (payload.diphtheriatoxin === 'N') {
             payload.diphtheriatoxin_date = '';
         }
+        console.log(payload);
 
         router.post('/diph', payload, {
             onSuccess: () => {
@@ -148,17 +145,13 @@ export default function create() {
     const antibiotic = form.watch('antibiotic');
     const diphtheriatoxin = form.watch('diphtheriatoxin');
 
-    const onError = (errors: any) => {
-        console.log('Form validation errors:', errors);
-    };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Add Diphtheria Case" />
             <div className="overflow-x flex w-full space-y-4 p-4">
                 <div className="flex w-full flex-row justify-start">
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-8">
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                             {/* 1st Column */}
                             <h1>
                                 <b>FORM</b>
@@ -606,6 +599,7 @@ export default function create() {
                                                     value={form.watch('known_exposure')}
                                                     onValueChange={(val) => {
                                                         form.setValue('known_exposure', Number(val) as 1 | 2 | 3 | 4);
+                                                        console.log(typeof form.getValues('known_exposure'));
                                                     }}
                                                 >
                                                     <SelectTrigger className="w-[180px]">
@@ -1362,7 +1356,7 @@ export default function create() {
                             </div>
                             <div className="flex justify-center">
                                 <Button className="bg-blue-500 text-white hover:bg-blue-600" type="submit">
-                                   Submit
+                                    Register User
                                 </Button>
                             </div>
                         </form>
