@@ -13,59 +13,98 @@ import { Head, router, usePage } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
 import { DIPHForm, diphFormSchema } from './data/schema';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Add Diphtheria Case',
-        href: '/diph/diph/create',
-    },
-];
+interface Diph {
+    id: number;
+    patient_number: string | '';
+    admitted: 'Y' | 'N';
+    date_admitted: string | undefined;
+    caregiver: string | undefined;
+    caregiver_no: string | undefined;
+    date_report: string | undefined;
+    reporter: string | undefined;
+    reporter_no: string | undefined;
+    date_investigation: string | undefined;
+    investigator: string | undefined;
+    investigator_no: string | undefined;
+    diphtheria_dose: 'Y' | 'N' | undefined;
+    total_dose: 1 | 2 | 3 | 'None' | 'Unknown' | undefined;
+    date_last_vaccination: string | undefined;
+    sourceinformation: 1 | 2 | 3 | '' | undefined;
+    known_exposure: 1 | 2 | 3 | 4 | '';
+    exposure_other: string | undefined;
+    name_school: string | undefined;
+    travel14days: 'Y' | 'N' | undefined;
+    travel_detail: string | undefined;
+    date_onset: string | undefined;
+    fever: 'Y' | 'N';
+    cough: 'Y' | 'N';
+    sorethroat: 'Y' | 'N';
+    pseudomembrane: 'Y' | 'N';
+    swallowing: 'Y' | 'N';
+    breathing: 'Y' | 'N';
+    other_symptoms: 'Y' | 'N';
+    other_symptoms_specify: string | undefined;
+    outcome: 1 | 2 | 3 | '';
+    datedied: string | undefined;
+    antibiotic: 'Y' | 'N' | undefined;
+    antibiotic_date: string | undefined;
+    diphtheriatoxin: 'Y' | 'N' | undefined;
+    diphtheriatoxin_date: string | undefined;
+    final_classi: 1 | 2 | 3 | 4 | 5 | '';
+}
 
-export default function create() {
-    const { patient_number } = usePage().props;
+export default function edit() {
+    const { diph } = usePage().props;
 
-    const pat_number = patient_number.map((p)=>p.patient_number);
+    const case_report = diph as Diph;
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Edit Diphtheria Case',
+            href: `/diph/diph/${case_report.id}/edit`,
+        },
+    ];
 
     const form = useForm<DIPHForm>({
         resolver: zodResolver(diphFormSchema),
         defaultValues: {
-            // case_id: '',
-            patient_number: pat_number[0] as string,
-            admitted: undefined,
-            date_admitted: undefined,
-            caregiver: '',
-            caregiver_no: '',
-            date_report: undefined,
-            reporter: '',
-            reporter_no: '',
-            date_investigation: undefined,
-            investigator: '',
-            investigator_no: '',
-            diphtheria_dose: undefined,
-            total_dose: undefined,
-            date_last_vaccination: undefined,
-            sourceinformation: undefined,
-            known_exposure: undefined,
-            exposure_other: '',
-            name_school: '',
-            travel14days: undefined,
-            travel_detail: '',
-            date_onset: undefined,
-            fever: undefined,
-            cough: undefined,
-            sorethroat: undefined,
-            pseudomembrane: undefined,
-            swallowing: undefined,
-            breathing: undefined,
-            other_symptoms: undefined,
-            other_symptoms_specify: '',
-            outcome: undefined,
-            datedied: undefined,
-            antibiotic: undefined,
-            antibiotic_date: undefined,
-            diphtheriatoxin: undefined,
-            diphtheriatoxin_date: undefined,
-            final_classi: undefined,
+            // case_id: case_report.
+            patient_number: case_report.patient_number || undefined,
+            admitted: case_report.admitted || undefined,
+            date_admitted: case_report.date_admitted || undefined,
+            caregiver: case_report.caregiver || undefined,
+            caregiver_no: case_report.caregiver_no || undefined,
+            date_report: case_report.date_report || undefined,
+            reporter: case_report.reporter || undefined,
+            reporter_no: case_report.reporter_no || undefined,
+            date_investigation: case_report.date_investigation || undefined,
+            investigator: case_report.investigator || undefined,
+            investigator_no: case_report.investigator_no || undefined,
+            diphtheria_dose: case_report.diphtheria_dose || undefined,
+            total_dose: case_report.total_dose || undefined,
+            date_last_vaccination: case_report.date_last_vaccination || undefined,
+            sourceinformation: case_report.sourceinformation || undefined,
+            known_exposure: case_report.known_exposure || undefined,
+            exposure_other: case_report.exposure_other || undefined,
+            name_school: case_report.name_school || undefined,
+            travel14days: case_report.travel14days || undefined,
+            travel_detail: case_report.travel_detail || '',
+            date_onset: case_report.date_onset || undefined,
+            fever: case_report.fever || undefined,
+            cough: case_report.cough || undefined,
+            sorethroat: case_report.sorethroat || undefined,
+            pseudomembrane: case_report.pseudomembrane || undefined,
+            swallowing: case_report.swallowing || undefined,
+            breathing: case_report.breathing || undefined,
+            other_symptoms: case_report.other_symptoms || undefined,
+            other_symptoms_specify: case_report.other_symptoms_specify || undefined,
+            outcome: case_report.outcome || undefined,
+            datedied: case_report.datedied || undefined,
+            antibiotic: case_report.antibiotic || undefined,
+            antibiotic_date: case_report.antibiotic_date || undefined,
+            diphtheriatoxin: case_report.diphtheriatoxin || undefined,
+            diphtheriatoxin_date: case_report.diphtheriatoxin_date || undefined,
+            final_classi: case_report.final_classi || undefined,
             // user_id: undefined,
             // timestamp: undefined,
             // verification_level: undefined,
@@ -128,7 +167,7 @@ export default function create() {
             payload.diphtheriatoxin_date = '';
         }
 
-        router.post('/diph', payload, {
+        router.put(`/diph/${case_report.id}`, payload, {
             onSuccess: () => {
                 form.reset();
             },
@@ -154,7 +193,7 @@ export default function create() {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Add Diphtheria Case" />
+            <Head title="Edit Diphtheria Case" />
             <div className="overflow-x flex w-full space-y-4 p-4">
                 <div className="flex w-full flex-row justify-start">
                     <Form {...form}>
@@ -264,7 +303,7 @@ export default function create() {
                                                 </div>
 
                                                 <RadioGroup
-                                                    value={form.watch('outcome') ?? ''}
+                                                    value={Number(form.watch('outcome')) ?? ''}
                                                     onValueChange={(val) => form.setValue('outcome', Number(val) as 1 | 2 | 3)}
                                                     className="flex flex-row space-x-4"
                                                 >
@@ -284,7 +323,7 @@ export default function create() {
                                                     ))}
                                                 </RadioGroup>
                                             </div>
-                                            <FormMessage /> {/* Shows validation errors if any */}
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -351,7 +390,7 @@ export default function create() {
                                         <FormItem>
                                             <FormLabel>Name of parent/caregiver:</FormLabel>
                                             <FormControl>
-                                                <Input {...field} placeholder="Write here..." className="min-w-149 border-2 border-black" />
+                                                <Input value={form.watch('caregiver') ?? ''} onChange={(e) => form.setValue('caregiver', e.target.value)} placeholder="Write here..." className="min-w-149 border-2 border-black" />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -364,7 +403,7 @@ export default function create() {
                                         <FormItem>
                                             <FormLabel>Parent/caregiver contact number:</FormLabel>
                                             <FormControl>
-                                                <Input {...field} placeholder="Write here..." className="min-w-149 border-2 border-black" />
+                                                <Input value={form.watch('caregiver_no') ?? ''} onChange={(e) => form.setValue('caregiver_no', e.target.value)} placeholder="Write here..." className="min-w-149 border-2 border-black" />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -396,7 +435,7 @@ export default function create() {
                                         </FormItem>
                                     )}
                                 />
-                                {date_report !== '' ? (
+                                {date_report !== '' && date_report !== undefined ? (
                                     <div className="flex flex-row items-start gap-x-32">
                                         <FormField
                                             control={form.control}
@@ -405,7 +444,7 @@ export default function create() {
                                                 <FormItem>
                                                     <FormLabel>Name of Reporter:</FormLabel>
                                                     <FormControl>
-                                                        <Input {...field} className="min-w-149 border-2 border-black" />
+                                                        <Input value={form.watch('reporter') ?? ''} onChange={(e) => form.setValue('reporter', e.target.value)} className="min-w-149 border-2 border-black" />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -418,7 +457,7 @@ export default function create() {
                                                 <FormItem>
                                                     <FormLabel>Reporter Contact Number:</FormLabel>
                                                     <FormControl>
-                                                        <Input {...field} className="min-w-149 border-2 border-black" />
+                                                        <Input value={form.watch('reporter_no') ?? ''} onChange={(e) => form.setValue('reporter_no', e.target.value)} className="min-w-149 border-2 border-black" />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -434,7 +473,7 @@ export default function create() {
                                                 <FormItem>
                                                     <FormLabel>Name of Reporter:</FormLabel>
                                                     <FormControl>
-                                                        <Input disabled {...field} className="min-w-149 border-2 border-black" />
+                                                        <Input disabled value={form.watch('reporter') ?? ''} onChange={(e) => form.setValue('reporter', e.target.value)} className="min-w-149 border-2 border-black" />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -447,7 +486,7 @@ export default function create() {
                                                 <FormItem>
                                                     <FormLabel>Reporter Contact Number:</FormLabel>
                                                     <FormControl>
-                                                        <Input disabled {...field} className="min-w-149 border-2 border-black" />
+                                                        <Input disabled value={form.watch('reporter_no') ?? ''} onChange={(e) => form.setValue('reporter_no', e.target.value)} className="min-w-149 border-2 border-black" />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -481,7 +520,7 @@ export default function create() {
                                         </FormItem>
                                     )}
                                 />
-                                {date_investigation !== '' ? (
+                                {date_investigation !== '' && date_investigation !== undefined ? (
                                     <div className="flex flex-row items-start gap-x-32">
                                         <FormField
                                             control={form.control}
@@ -490,7 +529,7 @@ export default function create() {
                                                 <FormItem>
                                                     <FormLabel>Name of Investigator:</FormLabel>
                                                     <FormControl>
-                                                        <Input {...field} className="min-w-149 border-2 border-black" />
+                                                        <Input value={form.watch('investigator') ?? ''} onChange={(e) => form.setValue('investigator', e.target.value)} className="min-w-149 border-2 border-black" />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -503,7 +542,7 @@ export default function create() {
                                                 <FormItem>
                                                     <FormLabel>Investigator Contact Number:</FormLabel>
                                                     <FormControl>
-                                                        <Input {...field} className="min-w-149 border-2 border-black" />
+                                                        <Input value={form.watch('investigator_no') ?? ''} onChange={(e) => form.setValue('investigator_no', e.target.value)} className="min-w-149 border-2 border-black" />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -519,7 +558,7 @@ export default function create() {
                                                 <FormItem>
                                                     <FormLabel>Name of Investigator:</FormLabel>
                                                     <FormControl>
-                                                        <Input disabled {...field} className="min-w-149 border-2 border-black" />
+                                                        <Input disabled value={form.watch('investigator') ?? ''} onChange={(e) => form.setValue('investigator', e.target.value)} className="min-w-149 border-2 border-black" />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -532,7 +571,7 @@ export default function create() {
                                                 <FormItem>
                                                     <FormLabel>Investigator Contact Number:</FormLabel>
                                                     <FormControl>
-                                                        <Input disabled {...field} className="min-w-149 border-2 border-black" />
+                                                        <Input disabled value={form.watch('investigator_no') ?? ''} onChange={(e) => form.setValue('investigator_no', e.target.value)} className="min-w-149 border-2 border-black" />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -580,7 +619,7 @@ export default function create() {
                                                     ))}
                                                 </RadioGroup>
                                             </div>
-                                            <FormMessage /> {/* Shows validation errors if any */}
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -603,7 +642,7 @@ export default function create() {
                                                     </FormDescription>
                                                 </div>
                                                 <Select
-                                                    value={form.watch('known_exposure')}
+                                                    value={Number(form.watch('known_exposure'))}
                                                     onValueChange={(val) => {
                                                         form.setValue('known_exposure', Number(val) as 1 | 2 | 3 | 4);
                                                     }}
@@ -631,7 +670,7 @@ export default function create() {
                                                     </SelectContent>
                                                 </Select>
                                             </div>
-                                            <FormMessage /> {/* Shows validation errors if any */}
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -677,7 +716,7 @@ export default function create() {
                                                         ))}
                                                     </RadioGroup>
                                                 </div>
-                                                <FormMessage /> {/* Shows validation errors if any */}
+                                                <FormMessage />
                                             </FormItem>
                                         )}
                                     />
@@ -750,7 +789,7 @@ export default function create() {
                                                         ))}
                                                     </RadioGroup>
                                                 </div>
-                                                <FormMessage /> {/* Shows validation errors if any */}
+                                                <FormMessage />
                                             </FormItem>
                                         )}
                                     />
@@ -810,7 +849,7 @@ export default function create() {
                                                 </div>
 
                                                 <RadioGroup
-                                                    value={form.watch('sourceinformation') ?? ''}
+                                                    value={Number(form.watch('sourceinformation')) ?? ''}
                                                     onValueChange={(val) => form.setValue('sourceinformation', Number(val) as 1 | 2 | 3)}
                                                     className="flex flex-row space-x-4"
                                                 >
@@ -834,7 +873,7 @@ export default function create() {
                                                     ))}
                                                 </RadioGroup>
                                             </div>
-                                            <FormMessage /> {/* Shows validation errors if any */}
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -859,7 +898,7 @@ export default function create() {
 
                                                 <RadioGroup
                                                     disabled
-                                                    value={form.watch('sourceinformation') ?? ''}
+                                                    value={Number(form.watch('sourceinformation') )?? ''}
                                                     onValueChange={(val) => form.setValue('sourceinformation', Number(val) as 1 | 2 | 3)}
                                                     className="flex flex-row space-x-4"
                                                 >
@@ -883,7 +922,7 @@ export default function create() {
                                                     ))}
                                                 </RadioGroup>
                                             </div>
-                                            <FormMessage /> {/* Shows validation errors if any */}
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -951,7 +990,7 @@ export default function create() {
                                                     ))}
                                                 </RadioGroup>
                                             </div>
-                                            <FormMessage /> {/* Shows validation errors if any */}
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -979,7 +1018,7 @@ export default function create() {
                                                         />
                                                     </FormControl>
                                                 </div>
-                                                <FormMessage /> {/* Shows validation errors if any */}
+                                                <FormMessage />
                                             </FormItem>
                                         )}
                                     />
@@ -1007,7 +1046,7 @@ export default function create() {
                                                         />
                                                     </FormControl>
                                                 </div>
-                                                <FormMessage /> {/* Shows validation errors if any */}
+                                                <FormMessage />
                                             </FormItem>
                                         )}
                                     />
@@ -1094,10 +1133,10 @@ export default function create() {
                                                         <FormLabel className="mb-1">Other symptoms, specify</FormLabel>
                                                     </div>
                                                     <FormControl>
-                                                        <Input className="border-2 border-black" type="text" placeholder="Write here..." {...field} />
+                                                        <Input className="border-2 border-black" type="text" placeholder="Write here..." value={form.watch('other_symptoms_specify') ?? ''} onChange={(e) => form.setValue('other_symptoms_specify', e.target.value)} />
                                                     </FormControl>
                                                 </div>
-                                                <FormMessage /> {/* Shows validation errors if any */}
+                                                <FormMessage />
                                             </FormItem>
                                         )}
                                     />
@@ -1117,11 +1156,11 @@ export default function create() {
                                                             disabled
                                                             type="text"
                                                             placeholder="Write here..."
-                                                            {...field}
+                                                            value={form.watch('other_symptoms_specify') ?? ''} onChange={(e) => form.setValue('other_symptoms_specify', e.target.value)}
                                                         />
                                                     </FormControl>
                                                 </div>
-                                                <FormMessage /> {/* Shows validation errors if any */}
+                                                <FormMessage />
                                             </FormItem>
                                         )}
                                     />
@@ -1161,7 +1200,7 @@ export default function create() {
                                                     ))}
                                                 </RadioGroup>
                                             </div>
-                                            <FormMessage /> {/* Shows validation errors if any */}
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -1250,7 +1289,7 @@ export default function create() {
                                                     ))}
                                                 </RadioGroup>
                                             </div>
-                                            <FormMessage /> {/* Shows validation errors if any */}
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -1311,12 +1350,6 @@ export default function create() {
                                     />
                                 )}
                             </div>
-                            {/* <h4 className="mt-10">
-                                <b>SPECIMEN COLLECTION for Corynebacterium diphtheriae</b>
-                            </h4> */}
-                            {/* 13th Column */}
-                            {/* 14th Column */}
-                            {/* 15th Column */}
                             <Separator />
                             <div className="flex flex-grow flex-row items-start gap-x-22">
                                 <FormField
@@ -1333,8 +1366,8 @@ export default function create() {
                                                     </FormLabel>
                                                 </div>
                                                 <RadioGroup
-                                                    value={form.watch('final_classi') ?? ''}
-                                                    onValueChange={(val) => form.setValue('final_classi', Number(val) as 1 | 2 | 3 | 4 | 5)}
+                                                    value={Number(form.watch('final_classi')) ?? ''}
+                                                    onValueChange={(val) => form.setValue('final_classi', parseInt(val) as 1 | 2 | 3 | 4 | 5)}
                                                     className="flex flex-row space-x-4"
                                                 >
                                                     {(
@@ -1355,14 +1388,14 @@ export default function create() {
                                                     ))}
                                                 </RadioGroup>
                                             </div>
-                                            <FormMessage /> {/* Shows validation errors if any */}
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
                             </div>
                             <div className="flex justify-center">
                                 <Button className="bg-blue-500 text-white hover:bg-blue-600" type="submit">
-                                   Submit
+                                    Update Diphtheria Case
                                 </Button>
                             </div>
                         </form>

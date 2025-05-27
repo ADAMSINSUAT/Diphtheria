@@ -7,53 +7,80 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { PatientForm, patientFormSchema } from './data/schema';
-import { title } from 'process';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Patient List',
-        href: '/patient'
-    },
-    {
-        title: 'Add Patient',
-        href: '/diph/patient/create',
-    },
+interface Patient {
+    id: number,
+    firstname: string | '',
+    middlename: string | '',
+    lastname: string | '',
+    suffixname: string | '',
+    sex: 'M' | 'F' | undefined,
+    dateofbirth: string | undefined,
+    ageinyears: number,
+    ageinmonths: number,
+    ageindays: number,
+    member_of_IP: undefined,
+    IP_tribe: number | undefined,
+    IP_tribe_specify: string | '',
+    pat_address_reg: string | '',
+    pat_address_prov: string | '',
+    pat_address_city: string | '',
+    pat_address_brgy: string | '',
+    pat_address_street_name: string | '',
+    pat_perm_address_reg: string | '',
+    pat_perm_address_prov: string | '',
+    pat_perm_address_city: string | '',
+    pat_perm_address_brgy: string | '',
+    pat_perm_address_street_name: string | '',
+    facilityname: string | '',
+    occupation: string | '',
+    phone_no: string | '',
+}
 
-];
+export default function edit({ provinces, regions, citymuns }) {
+    const { patient } = usePage().props;
 
-export default function create({ provinces, regions, citymuns }) {
+    const patient_data = patient as Patient;
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Edit Patient Data',
+            href: `/diph/patient/${patient_data.id}/edit`,
+        },
+    ];
+
     const form = useForm<PatientForm>({
         resolver: zodResolver(patientFormSchema),
         defaultValues: {
-            firstname: '',
-            middlename: '',
-            lastname: '',
-            suffixname: '',
-            sex: undefined,
-            dateofbirth: undefined,
-            ageinyears: 0,
-            ageinmonths: 0,
-            ageindays: 0,
-            member_of_IP: undefined,
-            IP_tribe: undefined,
-            IP_tribe_specify: '',
-            pat_address_reg: undefined,
-            pat_address_prov: undefined,
-            pat_address_city: undefined,
-            pat_address_brgy: undefined,
-            pat_address_street_name: undefined,
-            pat_perm_address_reg: undefined,
-            pat_perm_address_prov: undefined,
-            pat_perm_address_city: undefined,
-            pat_perm_address_brgy: undefined,
-            pat_perm_address_street_name: undefined,
-            facilityname: undefined,
-            occupation: '',
-            phone_no: '',
+            firstname: patient_data.firstname || undefined,
+            middlename: patient_data.middlename || undefined,
+            lastname: patient_data.lastname || undefined,
+            suffixname: patient_data.suffixname || undefined,
+            sex: patient_data.sex || undefined,
+            dateofbirth: patient_data.dateofbirth || undefined,
+            ageinyears: patient_data.ageinyears || undefined,
+            ageinmonths: patient_data.ageinmonths || undefined,
+            ageindays: patient_data.ageindays || undefined,
+            member_of_IP: patient_data.member_of_IP || undefined,
+            IP_tribe: patient_data.IP_tribe || undefined,
+            IP_tribe_specify: patient_data.IP_tribe_specify || undefined,
+            pat_address_reg: patient_data.pat_address_reg || undefined,
+            pat_address_prov: patient_data.pat_address_prov || undefined,
+            pat_address_city: patient_data.pat_address_city || undefined,
+            pat_address_brgy: patient_data.pat_address_brgy || undefined,
+            pat_address_street_name: patient_data.pat_address_street_name || undefined,
+            pat_perm_address_reg: patient_data.pat_perm_address_reg || undefined,
+            pat_perm_address_prov: patient_data.pat_perm_address_prov || undefined,
+            pat_perm_address_city: patient_data.pat_perm_address_city || undefined,
+            pat_perm_address_brgy: patient_data.pat_perm_address_brgy || undefined,
+            pat_perm_address_street_name: patient_data.pat_perm_address_street_name || undefined,
+            facilityname: patient_data.facilityname || undefined,
+            occupation: patient_data.occupation || undefined,
+            phone_no: patient_data.phone_no || undefined,
         },
     });
 
@@ -94,7 +121,7 @@ export default function create({ provinces, regions, citymuns }) {
             ...values,
         };
 
-        router.post('/patient', payload, {
+        router.put(`/patient/${patient_data.id}`, payload, {
             onSuccess: () => {
                 form.reset();
             },
@@ -104,12 +131,15 @@ export default function create({ provinces, regions, citymuns }) {
         });
     }
 
+    const member_of_IP = form.watch('member_of_IP');
+
+    // const region = regions;
+    // const permRegion = regions;
     const province = provinces;
     const permProvince = provinces;
     const citymun = citymuns;
     const permCityMun = citymuns;
 
-    const member_of_IP = form.watch('member_of_IP');
     const IP_tribe = form.watch('IP_tribe');
     const selectedRegionId = form.watch('pat_address_reg');
     const selectedPermRegionId = form.watch('pat_perm_address_reg');
@@ -160,14 +190,17 @@ export default function create({ provinces, regions, citymuns }) {
             form.setValue('pat_perm_address_city', undefined);
         }
     }, [selectedRegionId, selectedPermRegionId]);
+    const onError = (errors: any) => {
+        console.log('Form validation errors:', errors);
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Add Patient" />
+            <Head title="Edit Patient Data" />
             <div className="overflow-x flex w-full space-y-4 p-4">
                 <div className="flex w-full flex-row justify-start">
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                        <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-8">
                             {/* 1st Column */}
                             <h1>
                                 <b>General Data</b>
@@ -335,7 +368,7 @@ export default function create({ provinces, regions, citymuns }) {
                                                     </div>
                                                     <FormControl>
                                                         <p className="justify-text h-8 w-10 rounded-sm border-2 border-black text-center">
-                                                            {age?.years}
+                                                            {age?.years || patient_data.ageinyears}
                                                         </p>
                                                     </FormControl>
                                                 </div>
@@ -354,7 +387,7 @@ export default function create({ provinces, regions, citymuns }) {
                                                     </div>
                                                     <FormControl>
                                                         <p className="justify-text h-8 w-10 rounded-sm border-2 border-black text-center">
-                                                            {age?.months}
+                                                            {age?.months || patient_data.ageinmonths}
                                                         </p>
                                                     </FormControl>
                                                 </div>
@@ -373,7 +406,7 @@ export default function create({ provinces, regions, citymuns }) {
                                                     </div>
                                                     <FormControl>
                                                         <p className="justify-text h-8 w-10 rounded-sm border-2 border-black text-center">
-                                                            {age?.days}
+                                                            {age?.days || patient_data.ageindays}
                                                         </p>
                                                     </FormControl>
                                                 </div>
@@ -434,7 +467,7 @@ export default function create({ provinces, regions, citymuns }) {
                                                         <FormLabel>Indigenous People Tribe:</FormLabel>
                                                     </div>
                                                     <Select
-                                                        value={form.watch('IP_tribe')}
+                                                        value={Number(form.watch('IP_tribe'))??''}
                                                         onValueChange={(val) => {
                                                             form.setValue(
                                                                 'IP_tribe',
@@ -517,7 +550,7 @@ export default function create({ provinces, regions, citymuns }) {
                                                             ].map((option) => (
                                                                 <FormItem key={option.value} className="flex items-center space-x-2">
                                                                     <FormControl>
-                                                                        <SelectItem value={option.value} id={option.value}>
+                                                                        <SelectItem value={parseInt(option.value.toString())} id={option.value}>
                                                                             {option.label}
                                                                         </SelectItem>
                                                                     </FormControl>
@@ -542,11 +575,11 @@ export default function create({ provinces, regions, citymuns }) {
                                                     </div>
                                                     <Select
                                                         disabled
-                                                        value={''}
+                                                        value={Number(form.watch('IP_tribe')) ?? ''}
                                                         onValueChange={(val) => {
                                                             form.setValue(
                                                                 'IP_tribe',
-                                                                Number(val) as
+                                                                parseInt(val) as
                                                                 | 1
                                                                 | 2
                                                                 | 3
@@ -625,7 +658,7 @@ export default function create({ provinces, regions, citymuns }) {
                                                             ].map((option) => (
                                                                 <FormItem key={option.value} className="flex items-center space-x-2">
                                                                     <FormControl>
-                                                                        <SelectItem value={option.value} id={option.value}>
+                                                                        <SelectItem value={parseInt(option.value.toString())} id={option.value}>
                                                                             {option.label}
                                                                         </SelectItem>
                                                                     </FormControl>

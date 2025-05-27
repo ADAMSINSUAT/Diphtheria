@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 
 import {
     ColumnDef,
@@ -17,30 +17,54 @@ import {
 import { MoreHorizontal, PencilLine, PlusCircleIcon, Trash2 } from 'lucide-react';
 import * as React from 'react';
 
+import { Input } from '@/components/ui/input';
+
 import TableSortHeader from '@/components/data-table/data-table-sort-header.jsx';
 import { DataTableViewOptions } from '@/components/data-table/data-table-view-options';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-import { useState } from 'react';
-import TableNoSortHeader from '../../../../../../../resources/js/components/data-table/data-table-no-sort-header';
-import {useEffect} from 'react';
 import { toast } from 'sonner';
+import useDebouncedSearch from '@/hooks/use-debounced-search';
+import useSorting from '@/hooks/use-sorting';
+
+import { useEffect, useState } from 'react';
+import TableNoSortHeader from '../../../../../../../resources/js/components/data-table/data-table-no-sort-header';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Diphtheria',
-        href: '/patient',
+        title: 'Diphtheria Cases List',
+        href: '/diph',
     },
 ];
 
-export default function Patient({success}) {
-    useEffect(()=>{
-        if(success){
-            toast('Case Investigation Form successfully saved');
+export default function Diph() {
+    const { flash } = usePage().props;
+
+    useEffect(() => {
+        if (flash?.success) {
+            toast(flash?.success);
         }
-    },[success]);
+    }, [flash?.success]);
+
+    const { data: diph } = usePage().props.diph;
+
+    type Diph = {
+        id: string;
+        case_id: number;
+        admitted: string;
+        date_admitted: string,
+        patient: {
+            id: string;
+            patient_number: string,
+            full_name: string;
+        } | null;
+    };
+
+    const [data, setData] = useState<Diph[]>([...diph]);
+
+    console.log(data);
 
     // const { links, meta } = usePage().props;
     const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -48,89 +72,16 @@ export default function Patient({success}) {
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
 
-    // const { params, setParams, setTimeDebounce } = useDebouncedSearch('/diph/', filters);
-    // const { sort } = useSorting(filters, setParams);
+    const { filters, users } = usePage().props;
+    const { params, setParams, setTimeDebounce } = useDebouncedSearch('/diph', filters);
+    const { sort } = useSorting(filters, setParams);
 
-    type Patient = {
-        encoded_by: string;
-        case_id: string;
-        epi_id: string;
-        patient_no: string;
-        first_name: string;
-        middle_name: string | null;
-        last_name: string;
-        suffix_name: string | null;
-        sex: string;
-        dob: string;
-        age_in_years: number;
-        current_addr_region: string | null;
-        current_addr_province: string | null;
-        current_addr_city: string | null;
-        current_addr_barangay: string | null;
-        current_addr_purok: string | null;
-    };
+    const [search, setSearch] = useState('');
 
-    const [data, setData] = useState<Patient[]>([
-        {
-            encoded_by: 'John Doe',
-            case_id: '2024-1234704RP29M',
-            epi_id: '0000639-DIP-041824-24-1063',
-            patient_no: '24-1063',
-            first_name: 'REY MARK',
-            middle_name: 'SUNIT',
-            last_name: 'PELARIOS',
-            suffix_name: '',
-            sex: 'Male',
-            dob: '04/14/1995',
-            age_in_years: 29,
-            current_addr_region: 'Region XII (SOCCSKSARGEN)',
-            current_addr_province: 'Cotabato',
-            current_addr_city: 'Makilala',
-            current_addr_barangay: 'Taluntalunan',
-            current_addr_purok: 'Purok 3A',
-        },
-        {
-            encoded_by: 'John Doe',
-            case_id: '2024-1234704RP29M',
-            epi_id: '0000639-DIP-041824-24-1063',
-            patient_no: '24-1063',
-            first_name: 'REY MARK',
-            middle_name: 'SUNIT',
-            last_name: 'PELARIOS',
-            suffix_name: '',
-            sex: 'Male',
-            dob: '04/14/1995',
-            age_in_years: 29,
-            current_addr_region: 'Region XII (SOCCSKSARGEN)',
-            current_addr_province: 'Cotabato',
-            current_addr_city: 'Makilala',
-            current_addr_barangay: 'Taluntalunan',
-            current_addr_purok: 'Purok 3A',
-        },
-        {
-            encoded_by: 'John Doe',
-            case_id: '2024-1234704RP29M',
-            epi_id: '0000639-DIP-041824-24-1063',
-            patient_no: '24-1063',
-            first_name: 'REY MARK',
-            middle_name: 'SUNIT',
-            last_name: 'PELARIOS',
-            suffix_name: '',
-            sex: 'Male',
-            dob: '04/14/1995',
-            age_in_years: 29,
-            current_addr_region: 'Region XII (SOCCSKSARGEN)',
-            current_addr_province: 'Cotabato',
-            current_addr_city: 'Makilala',
-            current_addr_barangay: 'Taluntalunan',
-            current_addr_purok: 'Purok 3A',
-        },
-    ]);
-
-    const columns: ColumnDef<Patient>[] = [
+    const columns: ColumnDef<Diph>[] = [
         {
             id: 'actions',
-            header: ({}) => <TableNoSortHeader title="Actions" />,
+            header: ({ }) => <TableNoSortHeader title="Actions" />,
             cell: ({ row }) => (
                 <center>
                     <DropdownMenu>
@@ -141,20 +92,30 @@ export default function Patient({success}) {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            {/* <Link href="/diph/create">
-                                <DropdownMenuItem>
-                                    <PlusCircleIcon className="h-4 w-4" />
-                                    Add Case
-                                </DropdownMenuItem>
-                            </Link> */}
-                            <DropdownMenuSeparator />
-                            <Link href="/iam/users/create">
+                            <Link href={`/diph/${row.original.id}/edit`}>
                                 <DropdownMenuItem>
                                     <PencilLine className="h-4 w-4" />
-                                    Edit
+                                    Edit Diphtheria Case
                                 </DropdownMenuItem>
                             </Link>
                             <DropdownMenuSeparator />
+                            <sub><u>Laboratory</u></sub>
+                            <Link href='/lab/create'>
+                                <DropdownMenuItem>
+                                    <PencilLine className="h-4 w-4" />
+                                    Add Laboratory Data
+                                </DropdownMenuItem>
+                            </Link>
+                            <DropdownMenuSeparator />
+                            {/* {row.original.diph?.[0]?.id && (
+                                <div><Link href={`/diph/${row.original.diph?.[0]?.id}/edit`}>
+                                    <DropdownMenuItem>
+                                        <PencilLine className="h-4 w-4" />
+                                        Edit Diphtheria Case
+                                    </DropdownMenuItem>
+                                </Link>
+                                    <DropdownMenuSeparator /></div>
+                            )} */}
                             <Link href="/iam/users/create">
                                 <DropdownMenuItem>
                                     <Trash2 className="h-4 w-4" />
@@ -169,229 +130,62 @@ export default function Patient({success}) {
             enableHiding: false,
         },
         {
-            accessorKey: 'encoded_by',
-            header: ({ column }) => (
-                <TableSortHeader
-                    title="Encoded By"
-                    onClick={() => {
-                        // setTimeDebounce(50);
-                        // sort('encoded_by');
-                    }}
-                    // sort={params.col === 'encoded_by' ? params.sort : null}
-                />
-            ),
-            cell: ({ row }) => <div className="capitalize">{row.getValue('encoded_by')}</div>,
-        },
-        {
             accessorKey: 'case_id',
             header: ({ column }) => (
                 <TableSortHeader
                     title="Case ID"
                     onClick={() => {
-                        // setTimeDebounce(50);
-                        // sort('case_id');
+                        setTimeDebounce(50);
+                        sort('encoded_by');
                     }}
-                    // sort={params.col === 'case_id' ? params.sort : null}
+                    sort={params.col === 'encoded_by' ? params.sort : null}
                 />
             ),
             cell: ({ row }) => <div className="capitalize">{row.getValue('case_id')}</div>,
         },
         {
-            accessorKey: 'epi_id',
+            accessorKey: 'admitted',
             header: ({ column }) => (
                 <TableSortHeader
-                    title="EPI ID"
+                    title="Admitted(Y/N)"
                     onClick={() => {
-                        // setTimeDebounce(50);
-                        // sort('epi_id');
+                        setTimeDebounce(50);
+                        sort('encoded_by');
                     }}
-                    // sort={params.col === 'epi_id' ? params.sort : null}
+                    sort={params.col === 'encoded_by' ? params.sort : null}
                 />
             ),
-            cell: ({ row }) => <div className="capitalize">{row.getValue('epi_id')}</div>,
+            cell: ({ row }) => <div className="capitalize">{row.getValue('admitted')}</div>,
         },
         {
-            accessorKey: 'patient_no',
+            accessorKey: 'date_admitted',
             header: ({ column }) => (
                 <TableSortHeader
-                    title="Patient No.(*)"
+                    title="Date Admitted"
                     onClick={() => {
-                        // setTimeDebounce(50);
-                        // sort('patient_no');
+                        setTimeDebounce(50);
+                        sort('encoded_by');
                     }}
-                    // sort={params.col === 'patient_no' ? params.sort : null}
+                    sort={params.col === 'encoded_by' ? params.sort : null}
                 />
             ),
-            cell: ({ row }) => <div className="capitalize">{row.getValue('patient_no')}</div>,
+            cell: ({ row }) => <div className="capitalize">{row.getValue('date_admitted')}</div>,
         },
         {
-            accessorKey: 'first_name',
+            accessorKey: 'patient',
             header: ({ column }) => (
                 <TableSortHeader
-                    title="First Name (*)"
+                    title="Name of Patient"
                     onClick={() => {
-                        // setTimeDebounce(50);
-                        // sort('first_name');
+                        setTimeDebounce(50);
+                        sort('epi_id');
                     }}
-                    // sort={params.col === 'first_name' ? params.sort : null}
+                    sort={params.col === 'epi_id' ? params.sort : null}
                 />
             ),
-            cell: ({ row }) => <div className="capitalize">{row.getValue('first_name')}</div>,
-        },
-        {
-            accessorKey: 'middle_name',
-            header: ({ column }) => (
-                <TableSortHeader
-                    title="Middle Name (*)"
-                    onClick={() => {
-                        // setTimeDebounce(50);
-                        // sort('middle_name');
-                    }}
-                    // sort={params.col === 'middle_name' ? params.sort : null}
-                />
-            ),
-            cell: ({ row }) => <div className="capitalize">{row.getValue('middle_name')}</div>,
-        },
-        {
-            accessorKey: 'last_name',
-            header: ({ column }) => (
-                <TableSortHeader
-                    title="Last Name (*)"
-                    onClick={() => {
-                        // setTimeDebounce(50);
-                        // sort('last_name');
-                    }}
-                    // sort={params.col === 'last_name' ? params.sort : null}
-                />
-            ),
-            cell: ({ row }) => <div className="capitalize">{row.getValue('last_name')}</div>,
-        },
-        {
-            accessorKey: 'suffix_name',
-            header: ({ column }) => (
-                <TableSortHeader
-                    title="Suffix Name (*)"
-                    onClick={() => {
-                        // setTimeDebounce(50);
-                        // sort('suffix_name');
-                    }}
-                    // sort={params.col === 'suffix_name' ? params.sort : null}
-                />
-            ),
-            cell: ({ row }) => <div className="capitalize">{row.getValue('suffix_name')}</div>,
-        },
-        {
-            accessorKey: 'sex',
-            header: ({ column }) => (
-                <TableSortHeader
-                    title="Sex"
-                    onClick={() => {
-                        // setTimeDebounce(50);
-                        // sort('sex');
-                    }}
-                    // sort={params.col === 'sex' ? params.sort : null}
-                />
-            ),
-            cell: ({ row }) => <div className="capitalize">{row.getValue('sex')}</div>,
-        },
-        {
-            accessorKey: 'dob',
-            header: ({ column }) => (
-                <TableSortHeader
-                    title="Date of Birth"
-                    onClick={() => {
-                        // setTimeDebounce(50);
-                        // sort('dob');
-                    }}
-                    // sort={params.col === 'dob' ? params.sort : null}
-                />
-            ),
-            cell: ({ row }) => <div className="capitalize">{row.getValue('dob')}</div>,
-        },
-        {
-            accessorKey: 'age_in_years',
-            header: ({ column }) => (
-                <TableSortHeader
-                    title="Age In Years"
-                    onClick={() => {
-                        // setTimeDebounce(50);
-                        // sort('age_in_years');
-                    }}
-                    // sort={params.col === 'age_in_years' ? params.sort : null}
-                />
-            ),
-            cell: ({ row }) => <div className="capitalize">{row.getValue('age_in_years')}</div>,
-        },
-        {
-            accessorKey: 'current_addr_region',
-            header: ({ column }) => (
-                <TableSortHeader
-                    title="(Current Address) Region"
-                    onClick={() => {
-                        // setTimeDebounce(50);
-                        // sort('current_addr_region');
-                    }}
-                    // sort={params.col === 'current_addr_region' ? params.sort : null}
-                />
-            ),
-            cell: ({ row }) => <div className="capitalize">{row.getValue('current_addr_region')}</div>,
-        },
-
-        {
-            accessorKey: 'current_addr_province',
-            header: ({ column }) => (
-                <TableSortHeader
-                    title="(Current Address) Province"
-                    onClick={() => {
-                        // setTimeDebounce(50);
-                        // sort('current_addr_province');
-                    }}
-                    // sort={params.col === 'current_addr_province' ? params.sort : null}
-                />
-            ),
-            cell: ({ row }) => <div className="capitalize">{row.getValue('current_addr_province')}</div>,
-        },
-        {
-            accessorKey: 'current_addr_city',
-            header: ({ column }) => (
-                <TableSortHeader
-                    title="(Current Address) City / Municipality"
-                    onClick={() => {
-                        // setTimeDebounce(50);
-                        // sort('current_addr_city');
-                    }}
-                    // sort={params.col === 'current_addr_city' ? params.sort : null}
-                />
-            ),
-            cell: ({ row }) => <div className="capitalize">{row.getValue('current_addr_city')}</div>,
-        },
-        {
-            accessorKey: 'current_addr_barangay',
-            header: ({ column }) => (
-                <TableSortHeader
-                    title="(Current Address) Barangay"
-                    onClick={() => {
-                        // setTimeDebounce(50);
-                        // sort('current_addr_barangay');
-                    }}
-                    // sort={params.col === 'current_addr_barangay' ? params.sort : null}
-                />
-            ),
-            cell: ({ row }) => <div className="capitalize">{row.getValue('current_addr_barangay')}</div>,
-        },
-        {
-            accessorKey: 'current_addr_purok',
-            header: ({ column }) => (
-                <TableSortHeader
-                    title="(Current Address) Sitio / Purok"
-                    onClick={() => {
-                        // setTimeDebounce(50);
-                        // sort('current_addr_purok');
-                    }}
-                    // sort={params.col === 'current_addr_purok' ? params.sort : null}
-                />
-            ),
-            cell: ({ row }) => <div className="capitalize">{row.getValue('current_addr_purok')}</div>,
+            cell: ({ row }) => {
+                return <div className="capitalize">{row.original.patient?.full_name}</div>;
+            },
         },
     ];
 
@@ -426,23 +220,50 @@ export default function Patient({success}) {
                         setParams={setParams}
                         setTimeDebounce={setTimeDebounce}
                     /> */}
-                    <Link href="/patient/create">
+                    {/* <Link href="/patient/create">
                         <Button className="h-8 px-2 lg:px-3">
                             <PlusCircleIcon className="h-4 w-4" />
                             Add Patient
                         </Button>
-                    </Link>
-                    <Link href="/diph/create">
-                        <Button className="h-8 px-2 lg:px-3">
-                            <PlusCircleIcon className="h-4 w-4" />
-                            Add Diphtheria
-                        </Button>
-                    </Link>
+                    </Link> */}
+                    {/* <Dialog>
+                        <DialogTrigger asChild>
+                            <Button className="h-8 px-2 lg:px-3">
+                                <PlusCircleIcon className="h-4 w-4" />
+                                Add Diphtheria
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>Search for Patient</DialogTitle>
+                                <DialogDescription>Type the patient number of first name/middle name/last name of the patient.</DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="name" className="text-right">
+                                        Search:
+                                    </Label>
+                                    <Input
+                                        id="search"
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                        placeholder="Search..."
+                                        className="col-span-3"
+                                    />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Link href={`/diph/create?search=${search}`}>
+                                    <Button>Search patient</Button>
+                                </Link>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog> */}
 
                     {/* <Input
-                        placeholder="Filter user..."
-                        value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
-                        onChange={(event) => table.getColumn('email')?.setFilterValue(event.target.value)}
+                        placeholder="Search using patient's full name..."
+                        value={(table.getColumn('full_name')?.getFilterValue() as string) ?? ''}
+                        onChange={(event) => table.getColumn('full_name')?.setFilterValue(event.target.value)}
                         className="max-w-sm"
                     /> */}
                     <DataTableViewOptions table={table} />
